@@ -1,6 +1,7 @@
 import React from 'react';
+import type { Stats } from '../lib/types';
 
-export default function NetworkMap({ stats }: { stats: any }) {
+export default function NetworkMap({ stats }: { stats: Stats | null }) {
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       {/* Central Gateway (FastAPI) */}
@@ -11,20 +12,20 @@ export default function NetworkMap({ stats }: { stats: any }) {
 
       {/* SVG Connections (Animated Links) */}
       <svg className="absolute inset-0 w-full h-full">
-        {stats?.servers?.map((s: any, i: number) => {
+        {stats?.servers?.map((s, i) => {
           const angle = (i * 90) * (Math.PI / 180);
           const x2 = 50 + 35 * Math.cos(angle);
           const y2 = 50 + 35 * Math.sin(angle);
           return (
-            <line key={i} x1="50%" y1="50%" x2={`${x2}%`} y2={`${y2}%`} 
-              stroke={s.load > 85 ? "#ef4444" : "#3b82f6"} 
-              strokeWidth="2" strokeDasharray="5,5" className={stats?.traffic > 0 ? "animate-[dash_2s_linear_infinite]" : ""} />
+            <line key={i} x1="50%" y1="50%" x2={`${x2}%`} y2={`${y2}%`}
+              stroke={s.load > 85 ? "#ef4444" : "#3b82f6"}
+              strokeWidth="2" strokeDasharray="5,5" className={(stats?.traffic ?? 0) > 0 ? "animate-[dash_2s_linear_infinite]" : ""} />
           );
         })}
       </svg>
 
       {/* Server Nodes */}
-      {stats?.servers?.map((s: any, i: number) => {
+      {stats?.servers?.map((s, i) => {
         const angle = (i * 90) * (Math.PI / 180);
         const top = 50 + 35 * Math.sin(angle);
         const left = 50 + 35 * Math.cos(angle);

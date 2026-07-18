@@ -8,12 +8,10 @@ interface ComparisonCardProps {
     prediction: number;
     traffic: number;
   };
+  isBest: boolean;
 }
 
-export default function ComparisonCard({ data }: ComparisonCardProps) {
-  // Best performer highlight logic
-  const isBest = data.active_algo === "Least Loaded";
-
+export default function ComparisonCard({ data, isBest }: ComparisonCardProps) {
   return (
     <div className={`p-8 rounded-2xl border-2 transition-all duration-500 ${
       isBest ? 'border-black bg-white shadow-xl' : 'border-slate-100 bg-white'

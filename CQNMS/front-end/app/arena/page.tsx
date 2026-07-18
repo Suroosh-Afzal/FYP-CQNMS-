@@ -1,31 +1,53 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ComparisonCard from '../components/ComparisonCard'; // Path check karlein folder structure k mutabiq
-import { API_BASE_URL } from '../lib/api';
+import { fetchStats } from '../lib/api';
+import type { Stats } from '../lib/types';
+
+// Best performer: highest throughput first, lowest latency as a tie-breaker.
+// Computed from the actual returned metrics instead of hardcoding an algo name.
+function pickBestAlgo(results: Stats[]): string | null {
+  if (results.length === 0) return null;
+  return results.reduce((best, current) =>
+    current.throughput > best.throughput ||
+    (current.throughput === best.throughput && current.latency < best.latency)
+      ? current
+      : best
+  ).active_algo;
+}
 
 export default function AlgorithmArena() {
-  const [comparisonData, setComparisonData] = useState<any[]>([]);
+  const [comparisonData, setComparisonData] = useState<Stats[]>([]);
+  const [error, setError] = useState(false);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     const algos = ["Round Robin", "SJF", "Priority", "Least Loaded"];
+    const controller = new AbortController();
     const fetchAll = async () => {
+      const requestId = ++requestIdRef.current;
       try {
         // Har algorithm ke liye live parallel requests
         const results = await Promise.all(
-          algos.map(a => 
-            fetch(`${API_BASE_URL}/api/stats?algo=${a}&intensity=3000`)
-              .then(r => r.json())
-          )
+          algos.map(a => fetchStats(a, 3000, controller.signal))
         );
+        if (requestId !== requestIdRef.current) return; // a newer cycle already superseded this one
         setComparisonData(results);
-      } catch (err) {
-        console.error("Arena Fetch Error:", err);
+        setError(false);
+      } catch (err: any) {
+        if (err.name !== 'AbortError' && requestId === requestIdRef.current) {
+          console.error("Arena Fetch Error:", err);
+          setError(true);
+        }
       }
     };
 
+    fetchAll();
     const interval = setInterval(fetchAll, 2000); // 2 seconds update cycle
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); controller.abort(); };
   }, []);
+
+  const bestAlgo = pickBestAlgo(comparisonData);
 
   return (
     <div className="p-10 bg-white min-h-screen text-black">
@@ -40,13 +62,18 @@ export default function AlgorithmArena() {
           <p className="text-slate-400 font-medium text-xs mt-2 uppercase tracking-widest">
             Live Performance Metrics at 3000 Req/Intensity
           </p>
+          {error && (
+            <p className="mt-4 inline-block bg-red-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black animate-pulse">
+              ⚠️ BACKEND UNREACHABLE
+            </p>
+          )}
         </header>
 
         {/* Clean Comparison Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {comparisonData.length > 0 ? (
             comparisonData.map((data, idx) => (
-              <ComparisonCard key={idx} data={data} />
+              <ComparisonCard key={idx} data={data} isBest={data.active_algo === bestAlgo} />
             ))
           ) : (
             // Shimmer/Loading State (Minimalist)

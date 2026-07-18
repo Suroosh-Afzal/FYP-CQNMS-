@@ -1,29 +1,35 @@
 "use client";
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { API_BASE_URL } from '../lib/api';
+import { fetchStats } from '../lib/api';
+import type { Stats } from '../lib/types';
 
 function InnovationContent() {
   const searchParams = useSearchParams();
   const currentIntensity = Number(searchParams.get('intensity')) || 1000;
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState(false); // Error state add ki
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchData = async () => {
+      const requestId = ++requestIdRef.current;
       try {
-        const res = await fetch(`${API_BASE_URL}/api/stats?algo=Least Loaded&intensity=${currentIntensity}`);
-        if (!res.ok) throw new Error("Backend Unreachable");
-        const data = await res.json();
+        const data = await fetchStats("Least Loaded", currentIntensity, controller.signal);
+        if (requestId !== requestIdRef.current) return; // a newer request already superseded this one
         setStats(data);
         setError(false);
-      } catch (err) { 
-        console.error("Fetch Error:", err);
-        setError(true); // Agar backend band hai toh error true ho jaye
+      } catch (err: any) {
+        if (err.name !== 'AbortError' && requestId === requestIdRef.current) {
+          console.error("Fetch Error:", err);
+          setError(true); // Agar backend band hai toh error true ho jaye
+        }
       }
     };
+    fetchData();
     const interval = setInterval(fetchData, 2000);
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); controller.abort(); };
   }, [currentIntensity]);
 
   return (

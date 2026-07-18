@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation'; 
+import { useEffect, useRef, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import StatsPanel from './components/StatsPanel';
 import NetworkMap from './components/NetworkMap';
-import { API_BASE_URL } from './lib/api';
+import { fetchStats } from './lib/api';
+import type { Stats } from './lib/types';
 
 // 1. Dashboard ka saara logic humne alag component mein move kar diya hai
 function DashboardContent() {
@@ -13,24 +14,29 @@ function DashboardContent() {
   // Initial intensity URL se uthayega warna default 1000
   const initialIntensity = Number(searchParams.get('intensity')) || 1000;
 
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [selectedAlgo, setSelectedAlgo] = useState("Round Robin");
   const [intensity, setIntensity] = useState(initialIntensity);
+  const [error, setError] = useState(false);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     const controller = new AbortController();
     const fetchData = async () => {
+      const requestId = ++requestIdRef.current;
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/api/stats?algo=${selectedAlgo}&intensity=${intensity}`,
-          { signal: controller.signal }
-        );
-        const data = await res.json();
+        const data = await fetchStats(selectedAlgo, intensity, controller.signal);
+        if (requestId !== requestIdRef.current) return; // a newer request already superseded this one
         setStats(data);
+        setError(false);
       } catch (err: any) {
-        if (err.name !== 'AbortError') console.error("API Error:", err);
+        if (err.name !== 'AbortError' && requestId === requestIdRef.current) {
+          console.error("API Error:", err);
+          setError(true);
+        }
       }
     };
+    fetchData();
     const interval = setInterval(fetchData, 1000);
     return () => { clearInterval(interval); controller.abort(); };
   }, [selectedAlgo, intensity]);
@@ -54,7 +60,12 @@ function DashboardContent() {
           <span className="bg-black text-white px-2 py-0.5 rounded text-[10px]">v2.1</span>
           FYP - <span className="opacity-50 font-bold">CQNMS ENGINE</span>
         </h1>
-        {stats?.prediction > 0.7 && (
+        {error && (
+          <div className="bg-red-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black animate-pulse flex items-center gap-2 border border-white/20">
+            ⚠️ BACKEND UNREACHABLE
+          </div>
+        )}
+        {!error && stats?.prediction && stats.prediction > 0.7 && (
           <div className="bg-black text-white px-4 py-1.5 rounded-full text-[10px] font-black animate-pulse flex items-center gap-2 border border-white/20">
             ⚠️ PREDICTIVE ALERT: HIGH LOAD
           </div>
@@ -96,7 +107,7 @@ function DashboardContent() {
           <div className="h-[40%] bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5 italic text-center">Node Resource Health</h3>
             <div className="flex-1 flex flex-col justify-center space-y-5">
-              {stats?.servers?.map((s: any) => (
+              {stats?.servers?.map((s) => (
                 <div key={s.name}>
                   <div className="flex justify-between text-[10px] font-bold mb-1.5"><span className="text-slate-700 uppercase">{s.name}</span><span className="text-black font-black">{s.load}%</span></div>
                   <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden"><div className={`h-full transition-all duration-700 ${getBarColor(s.load)}`} style={{ width: `${s.load}%` }}></div></div>
@@ -107,7 +118,7 @@ function DashboardContent() {
           <div className="flex-1 bg-black p-5 rounded-xl flex flex-col min-h-0 relative border border-white/5 shadow-2xl">
             <h3 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 italic text-center">Execution Logs</h3>
             <div className="flex-1 overflow-y-auto space-y-3 font-mono scrollbar-hide opacity-80 text-[10px] text-slate-400">
-              {stats?.logs?.map((log: any, i: number) => <div key={i} className="py-1 border-b border-white/5 italic last:border-0">➜ {log.message}</div>)}
+              {stats?.logs?.map((log, i) => <div key={i} className="py-1 border-b border-white/5 italic last:border-0">➜ {log.message}</div>)}
             </div>
           </div>
         </div>
