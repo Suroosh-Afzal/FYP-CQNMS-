@@ -10,15 +10,16 @@ services:
       - ./backend:/app
     environment:
       - PYTHONUNBUFFERED=1
+      - FRONTEND_ORIGIN=http://localhost:3000
 
   # Next.js Frontend Service
   frontend:
-    build: 
-      context: ./front-end 
+    build:
+      context: ./front-end
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8000
     container_name: cqnms-frontend
     ports:
       - "3000:3000"
     depends_on:
       - backend
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000

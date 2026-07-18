@@ -1,10 +1,11 @@
 import React from 'react';
+import type { Stats } from '../lib/types';
 
-export default function StatsPanel({ stats }: { stats: any }) {
+export default function StatsPanel({ stats }: { stats: Stats | null }) {
   const metrics = [
     { label: 'Latency', value: stats?.latency || 0, unit: 'ms', color: 'text-blue-600' },
     { label: 'Throughput', value: stats?.throughput || 0, unit: '%', color: 'text-emerald-600' },
-    { label: 'Queue Length', value: Math.floor(stats?.traffic / 120) || 0, unit: 'req', color: 'text-amber-600' },
+    { label: 'Queue Length', value: stats ? Math.floor(stats.traffic / 120) : 0, unit: 'req', color: 'text-amber-600' },
     { label: 'AI Prediction', value: stats?.prediction || 0, unit: 'load', color: 'text-purple-600' },
   ];
 
