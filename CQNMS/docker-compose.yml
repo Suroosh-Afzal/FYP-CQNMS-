@@ -1,0 +1,24 @@
+services:
+  # Python Backend Service
+  backend:
+    build: 
+      context: ./backend
+    container_name: cqnms-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # Next.js Frontend Service
+  frontend:
+    build: 
+      context: ./front-end 
+    container_name: cqnms-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
