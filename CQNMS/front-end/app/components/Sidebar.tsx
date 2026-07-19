@@ -1,14 +1,14 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation'; // searchParams add kiya
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isExpanded, setIsExpanded] = useState(true);
   
-  // Current URL se intensity uthayega taake link mein bhej sakay
+  // Read intensity from the current URL so it can be forwarded to nav links
   const currentIntensity = searchParams.get('intensity') || '1000';
 
   const navItems = [
@@ -33,8 +33,8 @@ export default function Sidebar() {
         {navItems.map((item) => (
           <Link 
             key={item.path} 
-            // Yahan magic hai: Intensity ko link ke sath attach kar raha hai
-            href={`${item.path}?intensity=${currentIntensity}`} 
+            // Carry the current intensity along so it persists across page navigation
+            href={`${item.path}?intensity=${currentIntensity}`}
             className={`flex items-center rounded-xl text-xs font-black uppercase transition-all ${
               pathname === item.path ? 'bg-white text-black shadow-lg' : 'text-slate-400 hover:bg-white/5 hover:text-white'
             } ${isExpanded ? 'px-5 py-4 gap-4' : 'p-4 justify-center'}`}

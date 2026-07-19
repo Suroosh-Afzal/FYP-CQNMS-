@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Stats } from '../lib/types';
 
 export default function StatsPanel({ stats }: { stats: Stats | null }) {

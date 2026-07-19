@@ -2,13 +2,13 @@
 import { useEffect, useRef, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { fetchStats } from '../lib/api';
-import type { Stats } from '../lib/types';
+import type { ServerStat, Stats } from '../lib/types';
 
 function InnovationContent() {
   const searchParams = useSearchParams();
   const currentIntensity = Number(searchParams.get('intensity')) || 1000;
   const [stats, setStats] = useState<Stats | null>(null);
-  const [error, setError] = useState(false); // Error state add ki
+  const [error, setError] = useState(false);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function InnovationContent() {
       } catch (err: any) {
         if (err.name !== 'AbortError' && requestId === requestIdRef.current) {
           console.error("Fetch Error:", err);
-          setError(true); // Agar backend band hai toh error true ho jaye
+          setError(true); // Backend is unreachable - surface the error state
         }
       }
     };
@@ -68,9 +68,9 @@ function InnovationContent() {
           <section className="bg-slate-50 rounded-[2.5rem] p-10 border border-slate-200">
             <h2 className="text-xl font-black mb-6 uppercase italic tracking-widest italic">Self-Healing Infrastructure</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-               {(stats?.servers || [1,2,3,4]).map((s: any, idx: number) => (
+               {(stats?.servers ?? Array.from({ length: 4 })).map((s: ServerStat | undefined, idx: number) => (
                  <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 text-center shadow-sm">
-                    <div className={`h-1.5 w-1.5 rounded-full mx-auto mb-3 ${s?.load > 85 ? 'bg-black animate-ping' : 'bg-slate-300'}`}></div>
+                    <div className={`h-1.5 w-1.5 rounded-full mx-auto mb-3 ${(s?.load ?? 0) > 85 ? 'bg-black animate-ping' : 'bg-slate-300'}`}></div>
                     <p className="text-[9px] font-black opacity-30 uppercase italic">{s?.name || `SRV-${idx+1}`}</p>
                     <p className="text-[10px] font-black uppercase mt-1 italic">{s?.status || 'Offline'}</p>
                  </div>

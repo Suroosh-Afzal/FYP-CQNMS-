@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Stats } from '../lib/types';
 
 export default function NetworkMap({ stats }: { stats: Stats | null }) {
@@ -24,7 +23,6 @@ export default function NetworkMap({ stats }: { stats: Stats | null }) {
         })}
       </svg>
 
-      {/* Server Nodes */}
       {stats?.servers?.map((s, i) => {
         const angle = (i * 90) * (Math.PI / 180);
         const top = 50 + 35 * Math.sin(angle);

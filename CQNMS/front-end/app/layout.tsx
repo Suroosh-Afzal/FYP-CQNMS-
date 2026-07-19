@@ -1,4 +1,4 @@
-import { Suspense } from 'react'; // Suspense import kiya
+import { Suspense } from 'react';
 import Sidebar from './components/Sidebar';
 import './globals.css';
 
@@ -6,7 +6,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="flex bg-[#f8fafc] h-screen overflow-hidden">
-        {/* Suspense wrap kiya taake Sidebar aur children mein useSearchParams build fail na kare */}
+        {/* Wrapped in Suspense so useSearchParams in Sidebar/children doesn't fail the build */}
         <Suspense fallback={<div className="h-screen w-20 bg-black animate-pulse" />}>
           <Sidebar /> 
         </Suspense>

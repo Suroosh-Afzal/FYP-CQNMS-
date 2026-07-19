@@ -34,7 +34,6 @@ export default function ComparisonCard({ data, isBest }: ComparisonCardProps) {
       </div>
 
       <div className="space-y-6">
-        {/* Throughput Bar */}
         <div>
           <div className="flex justify-between text-[10px] font-black mb-2 uppercase tracking-tighter">
             <span>Throughput Rate</span>
@@ -48,7 +47,6 @@ export default function ComparisonCard({ data, isBest }: ComparisonCardProps) {
           </div>
         </div>
 
-        {/* Dynamic Stats Grid */}
         <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
            <div>
               <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Health Score</p>

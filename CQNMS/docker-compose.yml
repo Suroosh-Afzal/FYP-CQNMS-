@@ -7,6 +7,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      # Bind-mounts the source over the image's copy, for local edit/restart
+      # workflows. Anything the image wrote under /app at build time (there's
+      # nothing today besides source) would be shadowed by this mount.
       - ./backend:/app
     environment:
       - PYTHONUNBUFFERED=1
