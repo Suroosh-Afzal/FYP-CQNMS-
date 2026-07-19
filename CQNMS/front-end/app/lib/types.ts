@@ -23,3 +23,26 @@ export interface Stats {
   logs: LogEntry[];
   system_health: string;
 }
+
+export interface ServerLoadReportRow {
+  algorithm: string;
+  server_name: string;
+  avg_load_pct: number;
+  peak_load_pct: number;
+  samples: number;
+}
+
+export interface AlgorithmComparisonRow {
+  algorithm: string;
+  avg_latency_ms: number;
+  avg_throughput_pct: number;
+  avg_prediction_score: number;
+  degraded_events: number;
+  total_events: number;
+}
+
+export interface OverloadIncidentRow {
+  algorithm: string;
+  server_name: string;
+  overload_incidents: number;
+}
