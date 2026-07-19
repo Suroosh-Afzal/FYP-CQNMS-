@@ -15,6 +15,7 @@ export default function Sidebar() {
     { name: 'Live Dashboard', path: '/', icon: '🌐' },
     { name: 'Algo Arena', path: '/arena', icon: '📊' },
     { name: 'Innovation Vault', path: '/innovation', icon: '💡' },
+    { name: 'Reports', path: '/reports', icon: '📁' },
   ];
 
   return (
