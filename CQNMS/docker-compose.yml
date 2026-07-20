@@ -16,7 +16,7 @@ services:
       - FRONTEND_ORIGIN=http://localhost:3000
       # Windows Authentication doesn't reach the host from inside this Linux
       # container, so this connects to the host's SQL Server over TCP with a SQL
-      # login instead (one-time SQL Server setup required - see project docs).
+      # login instead (one-time SQL Server setup required - see SETUP.md).
       - DB_ENABLED=true
       - DB_SERVER=host.docker.internal,1433
       - DB_NAME=CQNMS_DB
