@@ -4,7 +4,7 @@
 USE CQNMS_DB;
 GO
 
--- Q: "Konsa server kam kaam karta hai, kis algorithm mein?"
+-- Q: "Which server does the least work, under which algorithm?"
 -- Average load per server, broken down by algorithm.
 SELECT
     e.algorithm,
@@ -18,7 +18,7 @@ GROUP BY e.algorithm, s.server_name
 ORDER BY e.algorithm, s.server_name;
 GO
 
--- Q: "Kis algorithm mein kab kitna load aaya, kaise respond kar raha tha?"
+-- Q: "Under each algorithm, when did load arrive and how did it respond?"
 -- Full audit trail for one session, in time order (swap in a real session_id).
 SELECT
     e.event_time,
@@ -37,7 +37,7 @@ WHERE e.session_id = 'PASTE_SESSION_ID_HERE'
 ORDER BY e.event_time, s.server_name;
 GO
 
--- Q: "Overall konsa algorithm best perform karta hai?"
+-- Q: "Which algorithm performs best overall?"
 -- Aggregate comparison across all recorded traffic.
 SELECT
     algorithm,
@@ -51,7 +51,7 @@ GROUP BY algorithm
 ORDER BY avg_latency_ms;
 GO
 
--- Q: "Agar sab servers ko ek saath load aaye, konsa overload hota hai?"
+-- Q: "If all servers get hit with load at once, which one overloads?"
 -- Overload incident count per server per algorithm (load_pct > 85).
 SELECT
     e.algorithm,

@@ -6,12 +6,12 @@ import NetworkMap from './components/NetworkMap';
 import { fetchStats } from './lib/api';
 import type { Stats } from './lib/types';
 
-// 1. Dashboard ka saara logic humne alag component mein move kar diya hai
+// Dashboard logic lives in its own component so it can sit inside Suspense below
 function DashboardContent() {
-  const router = useRouter(); 
+  const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // Initial intensity URL se uthayega warna default 1000
+
+  // Read the initial intensity from the URL, default to 1000
   const initialIntensity = Number(searchParams.get('intensity')) || 1000;
 
   const [stats, setStats] = useState<Stats | null>(null);
@@ -49,7 +49,7 @@ function DashboardContent() {
 
   const handleIntensityChange = (val: number) => {
     setIntensity(val);
-    // Organic update: URL update ho rahi hai taake state reset na ho
+    // Update the URL without triggering a state reset
     router.push(`/?intensity=${val}`, { scroll: false });
   };
 
@@ -127,7 +127,6 @@ function DashboardContent() {
   );
 }
 
-// 2. Export default component jo Suspense mein wrap ho
 export default function Dashboard() {
   return (
     <Suspense fallback={<div className="h-screen w-full flex items-center justify-center font-black uppercase tracking-widest text-slate-400">Synchronizing Engine...</div>}>
