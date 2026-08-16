@@ -1,26 +1,65 @@
 @import "tailwindcss";
 
+/*
+  Claude-style warm neutral theme, with black standing in for Claude's
+  signature orange/coral accent everywhere an accent color is needed
+  (primary actions, active nav state, focus highlights, chart accent line).
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg: #f7f5f0;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0eee6;
+  --color-surface-dark: #23221f;
+  --color-border: #e5e2d9;
+  --color-border-strong: #d8d4c7;
+  --color-text: #21201c;
+  --color-text-muted: #83807a;
+  --color-text-faint: #aca998;
+
+  --color-accent: #21201c;
+  --color-accent-foreground: #ffffff;
+
+  --color-danger: #b3452f;
+  --color-danger-bg: #f8e9e4;
+  --color-success: #3d6b4f;
+  --color-success-bg: #e8efe9;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-dark: var(--color-surface-dark);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-faint: var(--color-text-faint);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-danger: var(--color-danger);
+  --color-danger-bg: var(--color-danger-bg);
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-foreground);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

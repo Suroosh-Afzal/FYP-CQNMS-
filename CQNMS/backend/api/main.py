@@ -1,7 +1,9 @@
 import os
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
 from core.engine import session_manager
 from database import db, reports
 
@@ -41,17 +43,22 @@ def _require_db():
     if not db.is_available():
         raise HTTPException(status_code=503, detail="Database logging is not enabled/reachable")
 
+def _since(since_minutes: int | None) -> datetime | None:
+    if since_minutes is None:
+        return None
+    return datetime.now(timezone.utc) - timedelta(minutes=since_minutes)
+
 @app.get("/api/reports/server-load")
-async def report_server_load():
+async def report_server_load(since_minutes: int | None = Query(None, ge=1)):
     _require_db()
-    return reports.server_load_by_algorithm()
+    return await run_in_threadpool(reports.server_load_by_algorithm, _since(since_minutes))
 
 @app.get("/api/reports/algorithm-comparison")
-async def report_algorithm_comparison():
+async def report_algorithm_comparison(since_minutes: int | None = Query(None, ge=1)):
     _require_db()
-    return reports.algorithm_comparison()
+    return await run_in_threadpool(reports.algorithm_comparison, _since(since_minutes))
 
 @app.get("/api/reports/overload-incidents")
-async def report_overload_incidents():
+async def report_overload_incidents(since_minutes: int | None = Query(None, ge=1)):
     _require_db()
-    return reports.overload_incidents()
+    return await run_in_threadpool(reports.overload_incidents, _since(since_minutes))

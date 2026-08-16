@@ -2,20 +2,20 @@ import type { Stats } from '../lib/types';
 
 export default function StatsPanel({ stats }: { stats: Stats | null }) {
   const metrics = [
-    { label: 'Latency', value: stats?.latency || 0, unit: 'ms', color: 'text-blue-600' },
-    { label: 'Throughput', value: stats?.throughput || 0, unit: '%', color: 'text-emerald-600' },
-    { label: 'Queue Length', value: stats ? Math.floor(stats.traffic / 120) : 0, unit: 'req', color: 'text-amber-600' },
-    { label: 'AI Prediction', value: stats?.prediction || 0, unit: 'load', color: 'text-purple-600' },
+    { label: 'Latency', value: stats?.latency || 0, unit: 'ms' },
+    { label: 'Throughput', value: stats?.throughput || 0, unit: '%' },
+    { label: 'Queue Length', value: stats ? Math.floor(stats.traffic / 120) : 0, unit: 'req' },
+    { label: 'AI Prediction', value: stats?.prediction || 0, unit: 'load', accent: true },
   ];
 
   return (
     <div className="flex flex-col gap-3">
       {metrics.map((m) => (
-        <div key={m.label} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm transition-all hover:shadow-md">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{m.label}</p>
+        <div key={m.label} className="bg-surface p-4 rounded-xl border border-border shadow-sm transition-all hover:border-border-strong">
+          <p className="text-[10px] font-medium text-text-muted mb-1">{m.label}</p>
           <div className="flex items-baseline gap-1">
-            <span className={`text-xl font-black ${m.color}`}>{m.value}</span>
-            <span className="text-[10px] font-bold text-slate-400">{m.unit}</span>
+            <span className={`text-xl font-semibold ${m.accent ? 'text-accent' : 'text-text'}`}>{m.value}</span>
+            <span className="text-[10px] font-medium text-text-faint">{m.unit}</span>
           </div>
         </div>
       ))}

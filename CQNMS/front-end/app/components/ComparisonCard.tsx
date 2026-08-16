@@ -13,50 +13,50 @@ interface ComparisonCardProps {
 
 export default function ComparisonCard({ data, isBest }: ComparisonCardProps) {
   return (
-    <div className={`p-8 rounded-2xl border-2 transition-all duration-500 ${
-      isBest ? 'border-black bg-white shadow-xl' : 'border-slate-100 bg-white'
+    <div className={`h-full p-6 rounded-2xl border transition-all duration-500 bg-surface flex flex-col justify-between ${
+      isBest ? 'border-accent shadow-md' : 'border-border'
     }`}>
-      <div className="flex justify-between items-start mb-8">
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-xl font-black text-black uppercase tracking-tight">{data.active_algo}</h2>
+          <h2 className="text-lg font-semibold text-text">{data.active_algo}</h2>
           <div className="mt-2">
-            <span className={`text-[9px] font-black px-2 py-1 rounded uppercase tracking-widest ${
-              isBest ? 'bg-black text-white' : 'bg-slate-100 text-slate-400'
+            <span className={`text-[10px] font-medium px-2 py-1 rounded ${
+              isBest ? 'bg-accent text-accent-foreground' : 'bg-surface-2 text-text-muted'
             }`}>
               {isBest ? "Top Efficiency" : "Standard Model"}
             </span>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-black text-black tabular-nums">{data.latency}ms</p>
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Avg Latency</p>
+          <p className="text-2xl font-semibold text-text tabular-nums">{data.latency}ms</p>
+          <p className="text-[10px] font-medium text-text-muted">Avg Latency</p>
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         <div>
-          <div className="flex justify-between text-[10px] font-black mb-2 uppercase tracking-tighter">
+          <div className="flex justify-between text-[11px] font-medium mb-2 text-text-muted">
             <span>Throughput Rate</span>
-            <span>{data.throughput}%</span>
+            <span className="text-text">{data.throughput}%</span>
           </div>
-          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-            <div 
-              className="bg-black h-full transition-all duration-1000 ease-out" 
+          <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden">
+            <div
+              className="bg-accent h-full transition-all duration-1000 ease-out"
               style={{ width: `${data.throughput}%` }}
             ></div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
+        <div className="grid grid-cols-2 gap-4 pt-5 border-t border-border">
            <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Health Score</p>
-              <p className="text-xs font-bold text-black uppercase tracking-tighter">
+              <p className="text-[10px] font-medium text-text-muted mb-1">Health Score</p>
+              <p className="text-xs font-semibold text-text">
                 {data.prediction < 0.6 ? "Stable" : "High Stress"}
               </p>
            </div>
            <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Flow Rate</p>
-              <p className="text-xs font-bold text-black tabular-nums">
+              <p className="text-[10px] font-medium text-text-muted mb-1">Flow Rate</p>
+              <p className="text-xs font-semibold text-text tabular-nums">
                 {(data.traffic / 120).toFixed(1)} req/s
               </p>
            </div>

@@ -16,9 +16,9 @@ export default function ReportBar({ label, value, maxValue, color, displayValue,
 
   return (
     <div className="flex items-center gap-3">
-      <span className="w-28 shrink-0 text-[10px] font-black text-slate-500 uppercase truncate" title={label}>{label}</span>
+      <span className="w-28 shrink-0 text-[10px] font-medium text-text-muted truncate" title={label}>{label}</span>
       <div
-        className="relative flex-1 h-4 bg-slate-100 rounded-sm"
+        className="relative flex-1 h-4 bg-surface-2 rounded-sm"
         onMouseEnter={() => setActive(true)}
         onMouseLeave={() => setActive(false)}
         onFocus={() => setActive(true)}
@@ -30,12 +30,12 @@ export default function ReportBar({ label, value, maxValue, color, displayValue,
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
         {active && (
-          <div className="absolute -top-8 left-0 z-10 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] font-bold text-white shadow-lg">
+          <div className="absolute -top-8 left-0 z-10 whitespace-nowrap rounded bg-surface-dark px-2 py-1 text-[10px] font-medium text-white shadow-lg">
             {tooltipSeries ? `${tooltipSeries} — ` : ''}{displayValue}
           </div>
         )}
       </div>
-      <span className="w-16 shrink-0 text-right text-[10px] font-black text-black tabular-nums">{displayValue}</span>
+      <span className="w-16 shrink-0 text-right text-[10px] font-semibold text-text tabular-nums">{displayValue}</span>
     </div>
   );
 }
