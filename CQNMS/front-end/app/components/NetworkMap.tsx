@@ -4,9 +4,9 @@ export default function NetworkMap({ stats }: { stats: Stats | null }) {
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       {/* Central Gateway (FastAPI) */}
-      <div className="absolute z-20 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border-4 border-blue-500/20 text-center">
-        <div className="text-[10px] font-black uppercase opacity-60">LB Gateway</div>
-        <div className="text-xs font-bold">{stats?.active_algo || "Standby"}</div>
+      <div className="absolute z-20 bg-surface-dark text-white p-4 rounded-2xl shadow-xl border-4 border-accent/10 text-center">
+        <div className="text-[10px] font-medium text-white/50">LB Gateway</div>
+        <div className="text-xs font-semibold">{stats?.active_algo || "Standby"}</div>
       </div>
 
       {/* SVG Connections (Animated Links) */}
@@ -17,7 +17,8 @@ export default function NetworkMap({ stats }: { stats: Stats | null }) {
           const y2 = 50 + 35 * Math.sin(angle);
           return (
             <line key={i} x1="50%" y1="50%" x2={`${x2}%`} y2={`${y2}%`}
-              stroke={s.load > 85 ? "#ef4444" : "#3b82f6"}
+              stroke={s.load > 85 ? "#b3452f" : "#21201c"}
+              strokeOpacity={s.load > 85 ? 1 : 0.35}
               strokeWidth="2" strokeDasharray="5,5" className={(stats?.traffic ?? 0) > 0 ? "animate-[dash_2s_linear_infinite]" : ""} />
           );
         })}
@@ -28,10 +29,10 @@ export default function NetworkMap({ stats }: { stats: Stats | null }) {
         const top = 50 + 35 * Math.sin(angle);
         const left = 50 + 35 * Math.cos(angle);
         return (
-          <div key={i} className="absolute transition-all duration-500 p-3 rounded-xl bg-white border-2 shadow-lg text-center"
-            style={{ top: `${top}%`, left: `${left}%`, transform: 'translate(-50%, -50%)', borderColor: s.load > 85 ? '#ef4444' : '#e2e8f0' }}>
-            <div className="text-[9px] font-black text-slate-400 uppercase">{s.name}</div>
-            <div className={`text-xs font-black ${s.load > 85 ? 'text-red-600' : 'text-slate-900'}`}>{s.load}%</div>
+          <div key={i} className="absolute transition-all duration-500 p-3 rounded-xl bg-surface border-2 shadow-sm text-center"
+            style={{ top: `${top}%`, left: `${left}%`, transform: 'translate(-50%, -50%)', borderColor: s.load > 85 ? '#b3452f' : '#e5e2d9' }}>
+            <div className="text-[9px] font-medium text-text-muted">{s.name}</div>
+            <div className={`text-xs font-semibold ${s.load > 85 ? 'text-danger' : 'text-text'}`}>{s.load}%</div>
           </div>
         );
       })}

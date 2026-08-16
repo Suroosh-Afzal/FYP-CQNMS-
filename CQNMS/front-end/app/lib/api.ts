@@ -43,8 +43,9 @@ export async function fetchStats(
 // tell "database not connected" apart from a generic network/backend failure.
 export class DatabaseUnavailableError extends Error {}
 
-async function fetchReport<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, { signal });
+async function fetchReport<T>(path: string, sinceMinutes: number | null, signal?: AbortSignal): Promise<T> {
+  const query = sinceMinutes ? `?since_minutes=${sinceMinutes}` : "";
+  const res = await fetch(`${API_BASE_URL}${path}${query}`, { signal });
   if (res.status === 503) {
     throw new DatabaseUnavailableError("Database logging is not enabled/reachable");
   }
@@ -54,14 +55,15 @@ async function fetchReport<T>(path: string, signal?: AbortSignal): Promise<T> {
   return res.json();
 }
 
-export function fetchServerLoadReport(signal?: AbortSignal) {
-  return fetchReport<ServerLoadReportRow[]>("/api/reports/server-load", signal);
+// sinceMinutes: null/undefined means all-time (no filter), matching the backend's default.
+export function fetchServerLoadReport(sinceMinutes?: number | null, signal?: AbortSignal) {
+  return fetchReport<ServerLoadReportRow[]>("/api/reports/server-load", sinceMinutes ?? null, signal);
 }
 
-export function fetchAlgorithmComparisonReport(signal?: AbortSignal) {
-  return fetchReport<AlgorithmComparisonRow[]>("/api/reports/algorithm-comparison", signal);
+export function fetchAlgorithmComparisonReport(sinceMinutes?: number | null, signal?: AbortSignal) {
+  return fetchReport<AlgorithmComparisonRow[]>("/api/reports/algorithm-comparison", sinceMinutes ?? null, signal);
 }
 
-export function fetchOverloadIncidentsReport(signal?: AbortSignal) {
-  return fetchReport<OverloadIncidentRow[]>("/api/reports/overload-incidents", signal);
+export function fetchOverloadIncidentsReport(sinceMinutes?: number | null, signal?: AbortSignal) {
+  return fetchReport<OverloadIncidentRow[]>("/api/reports/overload-incidents", sinceMinutes ?? null, signal);
 }

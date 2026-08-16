@@ -1,4 +1,5 @@
 import os
+import queue
 
 DB_ENABLED = os.getenv("DB_ENABLED", "true").lower() != "false"
 DB_SERVER = os.getenv("DB_SERVER", r"localhost\SQLEXPRESS")
@@ -21,7 +22,7 @@ except ImportError as exc:
 _warned = False
 
 
-def get_connection():
+def _new_connection():
     conn_str = (
         f"DRIVER={{{DB_DRIVER}}};"
         f"SERVER={DB_SERVER};"
@@ -32,6 +33,45 @@ def get_connection():
     else:
         conn_str += "Trusted_Connection=yes;"
     return pyodbc.connect(conn_str, timeout=5)
+
+
+# Small pool of reused connections. Without this, every single /api/stats poll opens
+# a brand-new TCP + login handshake for its background log_event() write - under
+# sustained dashboard polling (every 1-2s, sometimes several tabs at once) that churn
+# is enough to starve out other connections (e.g. the Reports queries) on SQL Server
+# Express's limited login/worker capacity. Reusing a handful of long-lived connections
+# instead avoids paying that handshake cost on every call.
+_pool: "queue.Queue" = queue.Queue()
+POOL_MAX = 5
+
+
+def acquire_connection():
+    try:
+        conn = _pool.get_nowait()
+    except queue.Empty:
+        return _new_connection()
+    try:
+        conn.cursor().execute("SELECT 1")  # cheap liveness check before reuse
+        return conn
+    except Exception:
+        try:
+            conn.close()
+        except Exception:
+            pass
+        return _new_connection()
+
+
+def release_connection(conn) -> None:
+    if _pool.qsize() < POOL_MAX:
+        try:
+            _pool.put_nowait(conn)
+            return
+        except queue.Full:
+            pass
+    try:
+        conn.close()
+    except Exception:
+        pass
 
 
 def is_available() -> bool:
@@ -51,7 +91,7 @@ def log_event(session_id: str, algo: str, intensity: int, stats: dict) -> None:
         return
 
     try:
-        conn = get_connection()
+        conn = acquire_connection()
         try:
             cursor = conn.cursor()
             cursor.execute(
@@ -80,7 +120,7 @@ def log_event(session_id: str, algo: str, intensity: int, stats: dict) -> None:
             )
             conn.commit()
         finally:
-            conn.close()
+            release_connection(conn)
     except Exception as exc:
         if not _warned:
             print(f"[DB] Event logging failed, further failures will be silent: {exc}")
